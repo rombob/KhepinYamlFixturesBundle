@@ -53,6 +53,11 @@ fixtures DOES MATTER. There's 2 ways you can manipulate that order for now:
 - In the configuration: to decide which bundles have their fixtures loaded first
 - On the fixture file names: inside of each bundle, fixture files are loaded in 
 alphabetical order
+- By providing index file defining order `MyBundle/DataFixtures/fixturesOrder.txt`
+
+    fixturesOrder.txt:
+        User
+        Car
 
 Fixture files all go under `MyBundle/DataFixtures/somefixtures.yml`.
 
@@ -69,12 +74,23 @@ Fixture files are to be written in this format:
             phonenumber: 8765658
             birthday: "1989-12-12"
 
-You can use references to previously created fixtures:
+You can use references to previously created fixtures (relies on Doctrine relations):
 
     model: Name\Space\MyBundle\Entity\Car
     fixtures:
         audi_a3:
             owner: michael
+            since: "2010-12-12" #dates NEED to be set inside quotes
+        
+
+Another of referencing to previously created fixtures (doesn't requires Doctrine relations):
+ex: $<referenced_entity>|<referenced_column>
+ex: $michael|user_id
+
+    model: Name\Space\MyBundle\Entity\Car
+    fixtures:
+        audi_a3:
+            owner: $michael|user_id
             since: "2010-12-12" #dates NEED to be set inside quotes
 
 You can also define as many files as you want for the same entity. This will be
