@@ -74,9 +74,34 @@ class YamlLoader {
      */
     protected function loadFixtureFiles() {
         foreach ($this->bundles as $bundle) {
-            $path = $this->kernel->locateResource('@' . $bundle);
-            $files = glob($path . 'DataFixtures/*.yml');
-            $this->fixture_files = array_merge($this->fixture_files, $files);
+          $path = $this->kernel->locateResource('@' . $bundle);
+          $files = glob($path . 'DataFixtures/*.yml');
+          $this->fixture_files = array_merge($this->fixture_files, $files);
+
+          //sort by index
+          $sortedFiles = array();
+          $sortingIndex = @file_get_contents($path . 'DataFixtures/fixturesOrder.txt');
+
+          if (!empty($sortingIndex)) {
+            $sortingIndex = explode("\n", $sortingIndex);
+
+            // pick indexed
+            foreach ($sortingIndex as $name) {
+              foreach ($this->fixture_files as $key => $fixture_file) {
+                if (strcmp(basename($fixture_file), $name . '.yml') === 0) {
+                  $sortedFiles[] = $fixture_file;
+                  unset($this->fixture_files[$key]);
+                }
+              }
+            }
+            // append the rest
+            if (!empty($this->fixture_files)) {
+              foreach ($this->fixture_files as $fixture_file) {
+                $sortedFiles[] = $fixture_file;
+              }
+            }
+            $this->fixture_files = $sortedFiles;
+          }
         }
     }
 

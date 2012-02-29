@@ -16,6 +16,7 @@ class YamlFixture extends AbstractFixture {
         $class = $this->file['model'];
         // Get the fields that are not "associations"
         $metadata = $cmf->getMetaDataFor($class);
+
         $mapping = array_keys($metadata->fieldMappings);
         $associations = array_keys($metadata->associationMappings);
 
@@ -26,15 +27,21 @@ class YamlFixture extends AbstractFixture {
                 // Add the fields defined in the fistures file
                 $method = Inflector::camelize('set_' . $field);
                 // 
-                if (in_array($field, $mapping)) {
+                if(strpos($value, '$')===0) {
+                  // custom reference loader format: $<referencedEntityKey>|<referencedColumn>
+                  // ex: $first_campaign|idcampaign
+                  list($referencedEntity, $referenceColumn) = explode('|', ltrim($value, '$'));
+                  $getterMethod = Inflector::camelize('get_' . $referenceColumn);
+                  $object->$method($this->loader->getReference($referencedEntity)->$getterMethod());
+                } elseif (in_array($field, $mapping)) {
                     // Dates need to be converted to DateTime objects
                     $type = $metadata->fieldMappings[$field]['type'];
                     if ($type == 'datetime' OR $type == 'date') {
                         $value = new \DateTime($value);
                     }
                     $object->$method($value);
-                } else if (in_array($field, $associations)) { // This field is an association, we load it from the references
-                    $object->$method($this->loader->getReference($value));
+                } else if (in_array($field, $associations) ) { // This field is an association, we load it from the references
+                  $object->$method($this->loader->getReference($value));
                 } else {
                     // It's a method call that will set a field named differently
                     // eg: FOSUserBundle ->setPlainPassword sets the password after
