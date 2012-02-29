@@ -53,11 +53,12 @@ fixtures DOES MATTER. There's 2 ways you can manipulate that order for now:
 - In the configuration: to decide which bundles have their fixtures loaded first
 - On the fixture file names: inside of each bundle, fixture files are loaded in 
 alphabetical order
-- By providing index file defining order `MyBundle/DataFixtures/fixturesOrder.txt`:
+- By providing index file defining order `MyBundle/DataFixtures/fixturesOrder.txt`
 
-    fixturesOrder.txt:
-        User
-        Car
+fixturesOrder.txt:
+
+    User
+    Car
 
 Fixture files all go under `MyBundle/DataFixtures/somefixtures.yml`.
 
